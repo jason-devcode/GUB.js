@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graphic Engine</title>
+    <style>
+      body {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .viewport-container {
+        display: flex;
+        width: 75%;
+        height: 75%;
+        position: relative;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-viewport" class="viewport-container" >
+    </div>
+
+    <script type="module" src="./js/utils/init_engine.js"></script>
+    </script>
+  </body>
+</html>
