@@ -1,3 +1,4 @@
+import { Shapes } from "../utils/Shapes.js";
 import { GraphicEngine } from "./graphic_engine.js";
 
 /**
@@ -35,6 +36,9 @@ export class GameEngine {
    */
   initializeGameEngineContext() {
     this.instance_context = { graphics: this.graphic_engine };
+
+    // shapes
+    this.shapes = new Shapes(this.graphic_engine);
 
     // Time of the last frame rendered
     this.lastTime = 0;

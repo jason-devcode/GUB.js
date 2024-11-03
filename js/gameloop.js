@@ -1,3 +1,7 @@
+import { game_engine_instance } from "./core/game_engine_instance.js";
+
+const shapes = game_engine_instance.shapes;
+
 // Initialize an array to track the state of each key
 const keysState = {};
 
@@ -10,36 +14,50 @@ document.addEventListener("keyup", (event) => {
   keysState[event.key] = false; // Store key state as false
 });
 
-// Set a default color, e.g., red
-let color = 0xff0000;
-
 // Example: Move a smaller block with arrow keys
-let posX = 100;
-let posY = 100;
+let posX = 300;
+let posY = 200;
 
-const VELOCITY_PX = 80;
+const VELOCITY_PX = 200;
+
+const PI = 3.141592;
+const RADIAN = PI / 180.0;
+const HALF_PI = PI / 2;
+const PI1_4 = PI / 4;
+
+let currentAngle = 0;
+
+export const getCirclePoint = (angle, offsetX, offsetY, factor) => [
+  Math.cos(angle) * factor + offsetX,
+  Math.sin(angle) * factor + offsetY,
+];
+
 
 // Main game loop function
 export const gameLoop = ({ graphics }, deltaTime) => {
-  // Check specific keys to change the color
-  if (keysState[" "]) {
-    // Spacebar
-    color = 0x00ff00; // Change color to green when space is pressed
-  }
-  if (keysState["r"]) {
-    // 'R' key
-    color = 0x0000ff; // Change color to blue when 'R' is pressed
-  }
-
   if (keysState["ArrowLeft"]) posX -= VELOCITY_PX * deltaTime; // Left arrow
   if (keysState["ArrowUp"]) posY -= VELOCITY_PX * deltaTime; // Up arrow
   if (keysState["ArrowRight"]) posX += VELOCITY_PX * deltaTime; // Right arrow
   if (keysState["ArrowDown"]) posY += VELOCITY_PX * deltaTime; // Down arrow
 
-  // Draw a smaller block at posX, posY based on arrow key input
-  for (let y = posY; y < posY + 10; ++y) {
-    for (let x = posX; x < posX + 10; ++x) {
-      graphics.putPixel(x, y, color); // Draw the block with the chosen color
-    }
-  }
+  const pointA = getCirclePoint(currentAngle + PI1_4, posX, posY, 100);
+  const pointB = getCirclePoint(currentAngle - HALF_PI, posX, posY, 100);
+  const pointC = getCirclePoint(currentAngle + PI - PI1_4, posX, posY, 100);
+
+
+  shapes.drawScanLineTriangle(
+    pointA[0],
+    pointA[1],
+    pointB[0],
+    pointB[1],
+    pointC[0],
+    pointC[1],
+    0x0000ff,
+    graphics
+  );
+  shapes.drawCircleFill(pointA[0], pointA[1], 10, 0xff0000);
+  shapes.drawCircleFill(pointB[0], pointB[1], 10, 0xff0000);
+  shapes.drawCircleFill(pointC[0], pointC[1], 10, 0xff0000);
+
+  currentAngle += RADIAN * deltaTime * 100;
 };
