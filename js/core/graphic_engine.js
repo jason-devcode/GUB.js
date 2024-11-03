@@ -88,13 +88,13 @@ export class GraphicEngine {
     if (x < 0 || y < 0 || x > this.viewportWidth || y > this.viewportHeight)
       return;
 
-    const pixelIndex = this.calculatePixelIndex(x, y);
+    const pixelIndex = this.calculatePixelIndex(parseInt(x), parseInt(y));
 
-    const unpacketColor = this.unpackColorChannels(color_32bpp);
+    const unpackedColor = this.unpackColorChannels(color_32bpp);
 
-    this.framebuffer.data[pixelIndex + 0] = unpacketColor[0];
-    this.framebuffer.data[pixelIndex + 1] = unpacketColor[1];
-    this.framebuffer.data[pixelIndex + 2] = unpacketColor[2];
+    this.framebuffer.data[pixelIndex + 0] = unpackedColor[0];
+    this.framebuffer.data[pixelIndex + 1] = unpackedColor[1];
+    this.framebuffer.data[pixelIndex + 2] = unpackedColor[2];
     this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
   }
 
