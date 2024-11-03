@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Graphic Engine</title>
+    <title>Game Engine</title>
     <style>
       body {
         display: flex;
@@ -11,14 +11,15 @@
         height: 100vh;
         justify-content: center;
         align-items: center;
+        overflow: hidden;
       }
 
       .viewport-container {
         display: flex;
         width: 75%;
         height: 75%;
-        position: relative;
-        border: 1px solid black;
+        position: relative; /* this should be relative to place internal elements correctly  */
+        border: 4px solid black;
       }
     </style>
   </head>
