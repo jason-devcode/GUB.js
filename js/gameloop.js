@@ -18,7 +18,6 @@ document.addEventListener("keyup", (event) => {
 let posX = 300;
 let posY = 200;
 
-const VELOCITY_PX = 200;
 
 const PI = 3.141592;
 const RADIAN = PI / 180.0;
@@ -26,6 +25,8 @@ const HALF_PI = PI / 2;
 const PI1_4 = PI / 4;
 
 let currentAngle = 0;
+
+let VELOCITY_PX = RADIAN * 25;
 
 export const getCirclePoint = (angle, offsetX, offsetY, factor) => [
   Math.cos(angle) * factor + offsetX,
@@ -35,10 +36,14 @@ export const getCirclePoint = (angle, offsetX, offsetY, factor) => [
 
 // Main game loop function
 export const gameLoop = ({ graphics }, deltaTime) => {
-  if (keysState["ArrowLeft"]) posX -= VELOCITY_PX * deltaTime; // Left arrow
-  if (keysState["ArrowUp"]) posY -= VELOCITY_PX * deltaTime; // Up arrow
-  if (keysState["ArrowRight"]) posX += VELOCITY_PX * deltaTime; // Right arrow
-  if (keysState["ArrowDown"]) posY += VELOCITY_PX * deltaTime; // Down arrow
+  // if (keysState["ArrowLeft"]) posX -= VELOCITY_PX * deltaTime; // Left arrow
+  // if (keysState["ArrowUp"]) posY -= VELOCITY_PX * deltaTime; // Up arrow
+  // if (keysState["ArrowRight"]) posX += VELOCITY_PX * deltaTime; // Right arrow
+  // if (keysState["ArrowDown"]) posY += VELOCITY_PX * deltaTime; // Down arrow
+
+
+  if (keysState["ArrowUp"]) currentAngle -= VELOCITY_PX * deltaTime; // Up arrow
+  if (keysState["ArrowDown"]) currentAngle += VELOCITY_PX * deltaTime; // Down arrow
 
   const pointA = getCirclePoint(currentAngle + PI1_4, posX, posY, 100);
   const pointB = getCirclePoint(currentAngle - HALF_PI, posX, posY, 100);
@@ -59,5 +64,5 @@ export const gameLoop = ({ graphics }, deltaTime) => {
   shapes.drawCircleFill(pointB[0], pointB[1], 10, 0xff0000);
   shapes.drawCircleFill(pointC[0], pointC[1], 10, 0xff0000);
 
-  currentAngle += RADIAN * deltaTime * 100;
+  // currentAngle += RADIAN * deltaTime;
 };

@@ -75,6 +75,11 @@ export class Shapes {
     let xLeft = x1;
     let xRight = x1;
 
+    if (!DYAB) {
+      xLeft = x2;
+      xRight = x1;
+    }
+
     // Ensure xLeft is the smaller value and xRight is the larger
     if (slopeABX > slopeACX) {
       [slopeABX, slopeACX] = [slopeACX, slopeABX];
