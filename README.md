@@ -1,4 +1,5 @@
 # GUB.js
+![engine_demo](resources/gifs/ezgif-4-f92c6eb948.gif)
 
 GUB.js is a lightweight JavaScript game engine designed to simplify the development of browser-based games by providing essential features like a game loop, graphics engine, and utilities for managing game context and rendering.
 
