@@ -6,6 +6,7 @@ export class GraphicEngine {
   constructor(viewportId) {
     this.initializeEngine(viewportId);
     this.gameLoopCallback = null;
+    this.clearColor = 0xff000000; // clear framebuffer color by default
   }
 
   /**
@@ -112,6 +113,14 @@ export class GraphicEngine {
       data[i + 2] = unpackedColor[2]; // B
       data[i + 3] = unpackedColor[3]; // A
     }
+  }
+
+  /**
+   * Sets the default color to clear the framebuffer.
+   * @param {number} color_32bpp - The 32-bit color value in ARGB format to be used as the clear color.
+   */
+  setClearFramebufferColor(color_32bpp) {
+    this.clearColor = color_32bpp;
   }
 
   /**

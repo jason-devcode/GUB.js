@@ -160,7 +160,7 @@ export class GameEngine {
       // Calculate deltaTime before all current frame processes
       const deltaTime = this.calculateDeltaTime();
       // Clear the framebuffer with a black color (0x00000000).
-      this.graphic_engine.clearFramebuffer(0xff000000);
+      this.graphic_engine.clearFramebuffer(this.graphic_engine.clearColor);
       // Execute the provided callback with the current game engine context.
       gameLoop(deltaTime);
       // Render the framebuffer contents.

@@ -2,6 +2,14 @@ import { GameEngine } from "./core/game_engine.js";
 import { GraphicEngine } from "./core/graphic_engine.js";
 import { Shapes } from "./utils/Shapes.js";
 
+import {SLATE_950} from "./utils/colors.js"
+
+const entityData = {
+  position: [0, 0, 0],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1],
+};
+
 /**
  * Initializes the game application context, setting up the main game loop.
  *
@@ -11,6 +19,8 @@ import { Shapes } from "./utils/Shapes.js";
  * @returns {function(number): void} Game loop function that takes `deltaTime` to update the game.
  */
 export const gameAppContext = ({ graphics, shapes }) => {
+  graphics.setClearFramebufferColor(SLATE_950);
+
   const RADIAN = 0.01745329251;
 
   let currentAngle = 0.0;
