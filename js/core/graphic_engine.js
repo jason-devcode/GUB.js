@@ -138,4 +138,23 @@ export class GraphicEngine {
   getCanvasElement(viewportId) {
     return document.getElementById(viewportId);
   }
+
+  /**
+   * Sets the background color of the document's body using a 32-bit ARGB color value.
+   *
+   * @param {number} color_32bpp - The 32-bit color value in the format 0xAARRGGBB.
+   */
+  setBodyBackgroundColor(color_32bpp) {
+    // Extract the components from the 32-bit color
+    const alpha = (color_32bpp >>> 24) & 0xff; // Extract AA
+    const red = (color_32bpp >>> 16) & 0xff; // Extract RR
+    const green = (color_32bpp >>> 8) & 0xff; // Extract GG
+    const blue = color_32bpp & 0xff; // Extract BB
+
+    // Convert alpha to a 0-1 range for CSS RGBA
+    const alphaDecimal = (alpha / 255).toFixed(2);
+
+    // Set the background color using RGBA format
+    document.body.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alphaDecimal})`;
+  }
 }
