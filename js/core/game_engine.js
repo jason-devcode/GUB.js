@@ -13,21 +13,42 @@ export class GameEngine {
   static MILLISECONDS_FACTOR = 0.001; // Factor to convert milliseconds to seconds
 
   /**
-   * Initializes the GameEngine with a specified viewport ID for rendering.
+   * Creates an instance of GameEngine.
+   * @param {number} [customViewportWidth] - Custom width for the viewport in pixels (optional).
+   * @param {number} [customViewportHeight] - Custom height for the viewport in pixels (optional).
    * @param {string} [viewportDivId="game-viewport"] - The ID of the HTML element to be used as the viewport for rendering.
    */
-  constructor(viewportDivId = "game-viewport") {
-    this.initializeGraphicEngine(viewportDivId);
+  constructor(
+    customViewportWidth,
+    customViewportHeight,
+    viewportDivId = "game-viewport"
+  ) {
+    this.initializeGraphicEngine(
+      viewportDivId,
+      customViewportWidth,
+      customViewportHeight
+    );
     this.initializeFpsCounter(viewportDivId);
     this.initializeGameEngineContext();
   }
 
   /**
-   * Initializes the GraphicEngine instance for handling rendering tasks.
+   * Initializes the GraphicEngine for rendering tasks.
    * @param {string} viewportDivId - The ID of the HTML element used as the viewport for rendering.
+   * @param {number} [customViewportWidth] - Custom width for the viewport in pixels (optional).
+   * @param {number} [customViewportHeight] - Custom height for the viewport in pixels (optional).
    */
-  initializeGraphicEngine(viewportDivId) {
-    this.graphic_engine = new GraphicEngine(viewportDivId);
+
+  initializeGraphicEngine(
+    viewportDivId,
+    customViewportWidth,
+    customViewportHeight
+  ) {
+    this.graphic_engine = new GraphicEngine(
+      viewportDivId,
+      customViewportWidth,
+      customViewportHeight
+    );
   }
 
   /**

@@ -1,27 +1,41 @@
 export class GraphicEngine {
   /**
-   * Create a graphic engine instance.
-   * @param {string} viewportId - The ID of the canvas element to use.
+   * Creates an instance of the GraphicEngine.
+   * @param {string} viewportId - The ID of the HTML container element where the canvas will be added.
+   * @param {number} [customViewportWidth] - Optional custom width for the canvas in pixels.
+   * @param {number} [customViewportHeight] - Optional custom height for the canvas in pixels.
    */
-  constructor(viewportId) {
-    this.initializeEngine(viewportId);
+  constructor(viewportId, customViewportWidth, customViewportHeight) {
+    this.initializeEngine(
+      viewportId,
+      customViewportWidth,
+      customViewportHeight
+    );
     this.gameLoopCallback = null;
     this.clearColor = 0xff000000; // clear framebuffer color by default
   }
 
   /**
-   * initialize canvas element
+   * Initializes a new canvas element inside a specified HTML container.
+   * @param {string} viewportId - The ID of the HTML container element.
+   * @param {number} [customViewportWidth] - Optional custom width for the canvas in pixels.
+   * @param {number} [customViewportHeight] - Optional custom height for the canvas in pixels.
+   * @returns {HTMLCanvasElement} The created canvas element.
    */
-  initializeCanvas(viewportId) {
+  initializeCanvas(viewportId, customViewportWidth, customViewportHeight) {
     const viewportDiv = document.getElementById(viewportId);
 
-    const viewportWidth = viewportDiv.clientWidth;
-    const viewportHeight = viewportDiv.clientHeight;
+    const viewportWidth = customViewportWidth || viewportDiv.clientWidth;
+    const viewportHeight = customViewportHeight || viewportDiv.clientHeight;
 
     const newCanvasElement = document.createElement("canvas");
 
     newCanvasElement.width = viewportWidth;
     newCanvasElement.height = viewportHeight;
+
+    // set dynamic size of canvas related to parent container
+    newCanvasElement.style.width = "100%";
+    newCanvasElement.style.height = "100%";
 
     viewportDiv.appendChild(newCanvasElement);
 
@@ -29,11 +43,17 @@ export class GraphicEngine {
   }
 
   /**
-   * Initializes the engine by setting up the canvas and framebuffer.
-   * @param {string} viewportId - The ID of the canvas element.
+   * Sets up the canvas, rendering context, and framebuffer for the engine.
+   * @param {string} viewportId - The ID of the HTML container element where the canvas will be added.
+   * @param {number} [customViewportWidth] - Optional custom width for the canvas in pixels.
+   * @param {number} [customViewportHeight] - Optional custom height for the canvas in pixels.
    */
-  initializeEngine(viewportId) {
-    const canvas = this.initializeCanvas(viewportId);
+  initializeEngine(viewportId, customViewportWidth, customViewportHeight) {
+    const canvas = this.initializeCanvas(
+      viewportId,
+      customViewportWidth,
+      customViewportHeight
+    );
 
     const viewportWidth = canvas.width;
     const viewportHeight = canvas.height;
