@@ -1,37 +1,11 @@
-import { game_engine_instance } from "./core/game_engine_instance.js";
-
-const shapes = game_engine_instance.shapes;
-
-// Initialize an array to track the state of each key
-const keysState = {};
-
-// Update key states on keydown and keyup
-document.addEventListener("keydown", (event) => {
-  keysState[event.key] = true; // Store key state as true
-});
-
-document.addEventListener("keyup", (event) => {
-  keysState[event.key] = false; // Store key state as false
-});
-
-// Example: Move a smaller block with arrow keys
-let posX = 300;
-let posY = 200;
+import { GameEngine } from "./core/game_engine.js";
+import { GraphicEngine } from "./core/graphic_engine.js";
+import { SLATE_950 } from "./utils/colors.js";
+import { Shapes } from "./utils/Shapes.js";
 
 const PI = 3.141592;
 const TAU = PI * 2;
 const RADIAN = PI / 180.0;
-const HALF_PI = PI / 2;
-const PI1_4 = PI / 4;
-
-let currentAngle = 0;
-
-let VELOCITY_PX = RADIAN * 25;
-
-export const getCirclePoint = (angle, offsetX, offsetY, factor) => [
-  Math.cos(angle) * factor + offsetX,
-  Math.sin(angle) * factor + offsetY,
-];
 
 export const rotateVertexAxisX = (vertex, angle) => {
   let vertexOut = [0, 0, 0];
@@ -230,132 +204,132 @@ export const generateCylinder = (
   return solidData;
 };
 
-const donutData = generateSolidDonut(32, 32, 1, 0.5);
-const sphereData = generateSolidDonut(32, 32, 0, 1);
-const cylinderShapeData = generateCylinder(1,2, 16, 16);
+/**
+ * Initializes the game application context, setting up the main game loop.
+ *
+ * @param {Object} params - Configuration object for the game context.
+ * @param {GraphicEngine} params.graphics - Instance of the graphic engine to manage rendering.
+ * @param {Shapes} params.shapes - Instance of the Shapes class for drawing shapes.
+ * @returns {function(number): void} Game loop function that takes `deltaTime` to update the game.
+ */
+export const gameAppContext = ({ graphics, shapes }) => {
+  graphics.setBodyBackgroundColor(SLATE_950);
+  graphics.setClearFramebufferColor(SLATE_950);
 
-let tempVertices = new Array(8192);
+  const RADIAN = 0.01745329251;
+  const viewportWidthHalf = graphics.viewportWidth >> 1;
+  const viewportHeightHalf = graphics.viewportHeight >> 1;
+  const aspectRatio = graphics.viewportHeight / graphics.viewportWidth;
 
-export const drawShape3D = (
-  shapeData,
-  coordsInWorld,
-  shapeAngles,
-  viewportWidthHalf,
-  viewportHeightHalf,
-  aspectRatio,
-  drawEdges = true,
-  drawVertices = true
-) => {
-  for (
-    let vertexIterator = 0;
-    vertexIterator < shapeData.numVertices;
-    ++vertexIterator
-  ) {
-    const vertexData = shapeData.vertices[vertexIterator];
+  const donutData = generateSolidDonut(32, 32, 1, 0.5);
+  const sphereData = generateSolidDonut(32, 32, 0, 1);
+  const cylinderShapeData = generateCylinder(1, 2, 16, 16);
 
-    let vertex = rotateVertexAxisXYZ(
-      vertexData,
-      shapeAngles[0],
-      shapeAngles[1],
-      shapeAngles[2]
-    );
+  let currentAngle = 0.0;
 
-    vertex = addVertexToVertex(vertex, coordsInWorld);
+  let drawVertices = true;
+  let drawEdges = true;
 
-    tempVertices[vertexIterator] = [
-      vertex[0] * viewportWidthHalf * 0.5 * aspectRatio + viewportWidthHalf,
-      vertex[1] * viewportHeightHalf * 0.5 + viewportHeightHalf,
-    ];
-  }
+  const keyActions = {
+    1: () => (drawEdges = !drawEdges),
+    2: () => (drawVertices = !drawVertices),
+  };
 
-  if (drawEdges) {
-    for (
-      let edgeIterator = 0;
-      edgeIterator < shapeData.numEdges;
-      ++edgeIterator
-    ) {
-      const edge = shapeData.edges[edgeIterator];
+  document.addEventListener("keydown", (event) => {
+    const action = keyActions[event.key];
+    if (action) action();
+  });
 
-      const vertexA = tempVertices[edge[0]];
-      const vertexB = tempVertices[edge[1]];
+  let tempVertices = new Array(8192);
 
-      if (vertexB === undefined) continue;
-
-      shapes.drawNormalizedLine(
-        vertexA[0],
-        vertexA[1],
-        vertexB[0],
-        vertexB[1],
-        0x00ffff
-      );
-    }
-  }
-
-  if (drawVertices) {
+  const drawShape3D = (shapeData, coordsInWorld, shapeAngles) => {
     for (
       let vertexIterator = 0;
       vertexIterator < shapeData.numVertices;
       ++vertexIterator
     ) {
-      const vertex = tempVertices[vertexIterator];
+      const vertexData = shapeData.vertices[vertexIterator];
 
-      shapes.drawCircleFill(vertex[0], vertex[1], 2, 0xff0000);
+      let vertex = rotateVertexAxisXYZ(
+        vertexData,
+        shapeAngles[0],
+        shapeAngles[1],
+        shapeAngles[2]
+      );
+
+      vertex = addVertexToVertex(vertex, coordsInWorld);
+
+      tempVertices[vertexIterator] = [
+        vertex[0] * viewportWidthHalf * 0.5 * aspectRatio + viewportWidthHalf,
+        vertex[1] * viewportHeightHalf * 0.5 + viewportHeightHalf,
+      ];
     }
-  }
+
+    if (drawEdges) {
+      for (
+        let edgeIterator = 0;
+        edgeIterator < shapeData.numEdges;
+        ++edgeIterator
+      ) {
+        const edge = shapeData.edges[edgeIterator];
+
+        const vertexA = tempVertices[edge[0]];
+        const vertexB = tempVertices[edge[1]];
+
+        if (vertexB === undefined) continue;
+
+        shapes.drawNormalizedLine(
+          vertexA[0],
+          vertexA[1],
+          vertexB[0],
+          vertexB[1],
+          0x00ffff
+        );
+      }
+    }
+
+    if (drawVertices) {
+      for (
+        let vertexIterator = 0;
+        vertexIterator < shapeData.numVertices;
+        ++vertexIterator
+      ) {
+        const vertex = tempVertices[vertexIterator];
+
+        shapes.drawCircleFill(vertex[0], vertex[1], 2, 0xffff00);
+      }
+    }
+  };
+
+  /**
+   * Main game loop that updates object positions based on elapsed time.
+   *
+   * @param {number} deltaTime - Time in seconds since the last frame.
+   */
+  const gameLoop = (deltaTime) => {
+    drawShape3D(
+      cylinderShapeData,
+      [3, 0, 6],
+      [currentAngle, currentAngle * 0.5, 0]
+    );
+
+    drawShape3D(sphereData, [0, 0, 6], [currentAngle * 0.5, currentAngle, 0]);
+
+    drawShape3D(donutData, [-2.8, 0, 6], [currentAngle, currentAngle * 2, 0]);
+
+    currentAngle += RADIAN * 50 * deltaTime;
+  };
+
+  return gameLoop;
 };
 
-let drawVertices = true;
-let drawEdges = true;
-
-const keyActions = {
-  "1": () => drawEdges = !drawEdges,
-  "2": () => drawVertices = !drawVertices,
-}
-
-document.addEventListener("keydown", (event) => {
-  const action = keyActions[event.key];
-  if(action) action();
-});
-
-
-// Main game loop function
-export const gameLoop = ({ graphics }, deltaTime) => {
-  const viewportWidthHalf = graphics.viewportWidth >> 1;
-  const viewportHeightHalf = graphics.viewportHeight >> 1;
-  const aspectRatio = graphics.viewportHeight / graphics.viewportWidth;
-
-  drawShape3D(
-    cylinderShapeData,
-    [3, 0, 6],
-    [currentAngle, currentAngle * 0.5, 0],
-    viewportWidthHalf,
-    viewportHeightHalf,
-    aspectRatio,
-    drawEdges,
-    drawVertices
-  );
-
-  drawShape3D(
-    sphereData,
-    [0, 0, 6],
-    [currentAngle * 0.5, currentAngle, 0],
-    viewportWidthHalf,
-    viewportHeightHalf,
-    aspectRatio,
-    drawEdges,
-    drawVertices
-  );
-
-  drawShape3D(
-    donutData,
-    [-2.8, 0, 6],
-    [currentAngle, currentAngle * 2, 0],
-    viewportWidthHalf,
-    viewportHeightHalf,
-    aspectRatio,
-    drawEdges,
-    drawVertices
-  );
-
-  currentAngle += RADIAN * 50 * deltaTime;
+/**
+ * Main function that initializes and runs the game.
+ */
+export const main = () => {
+  const game = new GameEngine();
+  game.setGameAppContext(gameAppContext);
+  game.startGameLoop();
 };
+
+main();

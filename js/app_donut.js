@@ -1,37 +1,9 @@
-import { game_engine_instance } from "./core/game_engine_instance.js";
-
-const shapes = game_engine_instance.shapes;
-
-// Initialize an array to track the state of each key
-const keysState = {};
-
-// Update key states on keydown and keyup
-document.addEventListener("keydown", (event) => {
-  keysState[event.key] = true; // Store key state as true
-});
-
-document.addEventListener("keyup", (event) => {
-  keysState[event.key] = false; // Store key state as false
-});
-
-// Example: Move a smaller block with arrow keys
-let posX = 300;
-let posY = 200;
+import { GameEngine } from "./core/game_engine.js";
+import { GraphicEngine } from "./core/graphic_engine.js";
+import { Shapes } from "./utils/Shapes.js";
 
 const PI = 3.141592;
-const TAU = PI * 2;
-const RADIAN = PI / 180.0;
-const HALF_PI = PI / 2;
-const PI1_4 = PI / 4;
-
-let currentAngle = 0;
-
-let VELOCITY_PX = RADIAN * 25;
-
-export const getCirclePoint = (angle, offsetX, offsetY, factor) => [
-  Math.cos(angle) * factor + offsetX,
-  Math.sin(angle) * factor + offsetY,
-];
+const TAU = PI*2.0;
 
 export const rotateVertexAxisX = (vertex, angle) => {
   let vertexOut = [0, 0, 0];
@@ -40,6 +12,7 @@ export const rotateVertexAxisX = (vertex, angle) => {
   vertexOut[1] = vertex[1] * Math.cos(angle) + vertex[2] * Math.sin(angle);
   return vertexOut;
 };
+
 export const rotateVertexAxisY = (vertex, angle) => {
   let vertexOut = [0, 0, 0];
   vertexOut[0] = vertex[0] * Math.cos(angle) - vertex[2] * Math.sin(angle);
@@ -47,6 +20,7 @@ export const rotateVertexAxisY = (vertex, angle) => {
   vertexOut[2] = vertex[2] * Math.cos(angle) + vertex[0] * Math.sin(angle);
   return vertexOut;
 };
+
 export const rotateVertexAxisZ = (vertex, angle) => {
   let vertexOut = [0, 0, 0];
   vertexOut[2] = vertex[2];
@@ -166,71 +140,103 @@ export const generateSolidDonut = (
   return solidData;
 };
 
-const solidData = generateSolidDonut(64, 64, 0, 1);
+/**
+ * Initializes the game application context, setting up the main game loop.
+ *
+ * @param {Object} params - Configuration object for the game context.
+ * @param {GraphicEngine} params.graphics - Instance of the graphic engine to manage rendering.
+ * @param {Shapes} params.shapes - Instance of the Shapes class for drawing shapes.
+ * @returns {function(number): void} Game loop function that takes `deltaTime` to update the game.
+ */
+export const gameAppContext = ({ graphics, shapes }) => {
+  graphics.setClearFramebufferColor(0xFFFFFFFF);
 
-let tempVertices = new Array(solidData.numVertices);
+  const RADIAN = 0.01745329251;
 
-// Main game loop function
-export const gameLoop = ({ graphics }, deltaTime) => {
+  let currentAngle = 0.0;
+
+  const solidData = generateSolidDonut(32, 32, 2, 1);
+
+  let tempVertices = new Array(solidData.numVertices);
   const viewportWidthHalf = graphics.viewportWidth >> 1;
   const viewportHeightHalf = graphics.viewportHeight >> 1;
   const aspectRatio = graphics.viewportHeight / graphics.viewportWidth;
 
-  for (
-    let vertexIterator = 0;
-    vertexIterator < solidData.numVertices;
-    ++vertexIterator
-  ) {
-    const vertexData = solidData.vertices[vertexIterator];
+  /**
+   * Main game loop that updates object positions based on elapsed time.
+   *
+   * @param {number} deltaTime - Time in seconds since the last frame.
+   */
+  const gameLoop = (deltaTime) => {
+    for (
+      let vertexIterator = 0;
+      vertexIterator < solidData.numVertices;
+      ++vertexIterator
+    ) {
+      const vertexData = solidData.vertices[vertexIterator];
 
-    let vertex = rotateVertexAxisXYZ(
-      vertexData,
-      currentAngle,
-      currentAngle * 0.5,
-      0
-    );
+      let vertex = rotateVertexAxisXYZ(
+        vertexData,
+        currentAngle,
+        currentAngle * 0.5,
+        0
+      );
 
-    vertex = addVertexToVertex(vertex, [0, 0, 2]);
+      vertex = addVertexToVertex(vertex, [0, 0, 4]);
 
-    tempVertices[vertexIterator] = [
-      (vertex[0] / vertex[2]) * viewportWidthHalf * 0.5 * aspectRatio +
-        viewportWidthHalf,
-      (vertex[1] / vertex[2]) * viewportHeightHalf * 0.5 + viewportHeightHalf,
-    ];
-  }
+      tempVertices[vertexIterator] = [
+        (vertex[0] / vertex[2]) * viewportWidthHalf * 0.5 * aspectRatio +
+          viewportWidthHalf,
+        (vertex[1] / vertex[2]) * viewportHeightHalf * 0.5 + viewportHeightHalf,
+      ];
+    }
 
-  for (
-    let edgeIterator = 0;
-    edgeIterator < solidData.numEdges;
-    ++edgeIterator
-  ) {
-    const edge = solidData.edges[edgeIterator];
+    for (
+      let edgeIterator = 0;
+      edgeIterator < solidData.numEdges;
+      ++edgeIterator
+    ) {
+      const edge = solidData.edges[edgeIterator];
 
-    const vertexA = tempVertices[edge[0]];
-    const vertexB = tempVertices[edge[1]];
+      const vertexA = tempVertices[edge[0]];
+      const vertexB = tempVertices[edge[1]];
 
-    if (vertexB === undefined) continue;
+      if (vertexB === undefined) continue;
 
-    shapes.drawNormalizedLine(
-      vertexA[0],
-      vertexA[1],
-      vertexB[0],
-      vertexB[1],
-      0x000000
-    );
+      shapes.drawNormalizedLine(
+        vertexA[0],
+        vertexA[1],
+        vertexB[0],
+        vertexB[1],
+        0x000000
+      );
 
-    // shapes.drawCircleFill(vertexA[0], vertexA[1], 2, 0xff0000);
-    // shapes.drawCircleFill(vertexB[0], vertexB[1], 2, 0xff0000);
-  }
-  // for (
-  //   let vertexIterator = 0;
-  //   vertexIterator < solidData.numVertices;
-  //   ++vertexIterator
-  // ) {
-  //   const vertex = tempVertices[vertexIterator];
+      // shapes.drawCircleFill(vertexA[0], vertexA[1], 2, 0xff0000);
+      // shapes.drawCircleFill(vertexB[0], vertexB[1], 2, 0xff0000);
+    }
+    // for (
+    //   let vertexIterator = 0;
+    //   vertexIterator < solidData.numVertices;
+    //   ++vertexIterator
+    // ) {
+    //   const vertex = tempVertices[vertexIterator];
 
-  //   shapes.drawCircleFill(vertex[0], vertex[1], 2, 0xff0000);
-  // }
+    //   shapes.drawCircleFill(vertex[0], vertex[1], 2, 0xff0000);
+    // }
 
-  currentAngle += RADIAN * 100 * deltaTime;
+    currentAngle += RADIAN * 100 * deltaTime;
+  };
+
+  return gameLoop;
 };
+
+/**
+ * Main function that initializes and runs the game.
+ */
+export const main = () => {
+  const game = new GameEngine();
+  game.setGameAppContext(gameAppContext);
+  game.startGameLoop();
+};
+
+main();
