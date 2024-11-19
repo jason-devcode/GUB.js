@@ -1,3 +1,5 @@
+import { GUBImage } from "../utils/GUBImage.js";
+
 export class GraphicEngine {
   /**
    * Creates an instance of the GraphicEngine.
@@ -57,7 +59,8 @@ export class GraphicEngine {
 
     const viewportWidth = canvas.width;
     const viewportHeight = canvas.height;
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d", { alpha: false });
+    context.imageSmoothingEnabled = false;
 
     const contextImageData = context.getImageData(
       0,
@@ -117,6 +120,30 @@ export class GraphicEngine {
     this.framebuffer.data[pixelIndex + 1] = unpackedColor[1];
     this.framebuffer.data[pixelIndex + 2] = unpackedColor[2];
     this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
+  }
+
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @param {GUBImage} image
+   */
+  drawLerpImage(x, y, width, height, image) {
+    if (!image || width <= 0 || height <= 0) return;
+
+    let widthRatio = image.width / width;
+    let heightRatio = image.height / height;
+
+    for (let Y = 0; Y < height; ++Y) {
+      for (let X = 0; X < width; ++X) {
+        let pixelX = X * widthRatio;
+        let pixelY = Y * heightRatio;
+        const pixelColor = image.getPixel(pixelX, pixelY);
+        this.putPixel(x + X, y + Y, pixelColor);
+      }
+    }
   }
 
   /**
