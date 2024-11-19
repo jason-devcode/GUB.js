@@ -163,7 +163,8 @@ export class GameEngine {
    * allowing the game logic to update based on elapsed time.
    *
    * @example
-   * const gameAppContext = (context) => {
+   * const gameAppContext = async (context) => {
+   *   // Async initialization logic here
    *   return (deltaTime) => {
    *     // Game update and render logic here, using deltaTime
    *   };
@@ -172,17 +173,49 @@ export class GameEngine {
    * engine.startGameLoop();
    */
   setGameAppContext(gameAppContext) {
-    if (!gameAppContext) return;
-    const gameLoop = gameAppContext(this.instance_context);
+    return new Promise((resolve, reject) => {
+      if (!gameAppContext) {
+        reject(new Error("No gameAppContext provided."));
+        return;
+      }
 
-    this.gameLoopCallback = () => {
+      // Check if the provided gameAppContext function is asynchronous
+      const isAsync = gameAppContext.constructor.name === "AsyncFunction";
+
+      // If the function is asynchronous, wait for it to resolve
+      if (isAsync) {
+        Promise.resolve(gameAppContext(this.instance_context))
+          .then((gameLoop) => {
+            // Once resolved, create the game loop callback
+            this.gameLoopCallback = this.createGameLoop(gameLoop);
+            resolve(); // Resolve the promise when everything is ready
+          })
+          .catch((error) => {
+            reject(error); // Catch any error that occurs during the async process
+          });
+      } else {
+        // If the function is synchronous, execute it immediately
+        const gameLoop = gameAppContext(this.instance_context);
+        this.gameLoopCallback = this.createGameLoop(gameLoop);
+        resolve(); // Resolve immediately since it's a synchronous operation
+      }
+    });
+  }
+
+  /**
+   * Create the game loop callback function.
+   * @param {function(number): void} gameLoop - The game loop function to be executed on each frame.
+   * @returns {function} A game loop callback function that will be used in the game loop cycle.
+   */
+  createGameLoop(gameLoop) {
+    return () => {
       // Update FPS counter
       this.updateFPSCounter();
       // Calculate deltaTime before all current frame processes
       const deltaTime = this.calculateDeltaTime();
       // Clear the framebuffer with a black color (0x00000000).
       this.graphic_engine.clearFramebuffer(this.graphic_engine.clearColor);
-      // Execute the provided callback with the current game engine context.
+      // Execute the provided game loop function with the current deltaTime
       gameLoop(deltaTime);
       // Render the framebuffer contents.
       this.graphic_engine.render();
