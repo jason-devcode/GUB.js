@@ -25,8 +25,10 @@ export class GUBImage {
    * @returns {number} The color of the pixel as a 32-bit unsigned integer in ARGB format.
    */
   getPixel(x, y) {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
-    const index = y * this.width + x;
+    const px = parseInt(x);
+    const py = parseInt(y);
+    if (px < 0 || px >= this.width || py < 0 || py >= this.height) return;
+    const index = py * this.width + px;
     return this.pixelData[index];
   }
 
@@ -38,8 +40,10 @@ export class GUBImage {
    * @param {number} color - The color of the pixel as a 32-bit unsigned integer in ARGB format.
    */
   putPixel(x, y, color) {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
-    const index = y * this.width + x;
+    const px = parseInt(x);
+    const py = parseInt(y);
+    if (px < 0 || px >= this.width || py < 0 || py >= this.height) return;
+    const index = py * this.width + px;
     this.pixelData[index] = color;
   }
 }
