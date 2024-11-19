@@ -137,4 +137,34 @@ export class Shapes {
       pointY += slopeY;
     }
   }
+
+  /**
+   * Draws a line from (x1, y1) to (x2, y2) using a basic line drawing algorithm.
+   * This method calculates the steps required to draw the line smoothly and iterates over them.
+   *
+   * @param {number} x1 - The x-coordinate of the start point.
+   * @param {number} y1 - The y-coordinate of the start point.
+   * @param {number} x2 - The x-coordinate of the end point.
+   * @param {number} y2 - The y-coordinate of the end point.
+   * @param {number} color_32bpp - The color of the line in 32-bit format.
+   */
+  drawLine(x1, y1, x2, y2, color_32bpp) {
+    let DX_AB = x2 - x1;
+    let DY_AB = y2 - y1;
+
+    let steps =
+      Math.abs(Math.abs(DX_AB) > Math.abs(DY_AB) ? DX_AB : DY_AB) || 1;
+
+    let stepX = DX_AB / steps;
+    let stepY = DY_AB / steps;
+
+    let X = x1 + 0.5;
+    let Y = y1 + 0.5;
+    for (let lineIterator = 0; lineIterator < steps; ++lineIterator) {
+      this.graphics.putPixel(X, Y, color_32bpp);
+      X += stepX;
+      Y += stepY;
+    }
+  }
+
 }
