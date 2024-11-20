@@ -1,3 +1,5 @@
+import { GraphicEngine } from "../core/graphic_engine.js";
+
 /**
  * Class representing a collection of shape drawing methods.
  * This class provides methods for drawing filled circles, triangles, and lines on a given graphics surface.
@@ -5,7 +7,7 @@
 export class Shapes {
   /**
    * Creates an instance of Shapes.
-   * @param {object} graphics - An object that provides the `putPixel(x, y, color)` method for rendering pixels on the screen.
+   * @param {GraphicEngine} graphics - An object that provides the `putPixel(x, y, color)` method for rendering pixels on the screen.
    */
   constructor(graphics) {
     this.graphics = graphics;
@@ -31,6 +33,67 @@ export class Shapes {
           this.graphics.putPixel(-x + cx, -y + cy, color);
         }
       }
+    }
+  }
+
+  /**
+   * Draws a line from (x1, y1) to (x2, y2) using normalized coordinates.
+   * This line drawing algorithm computes the slope and steps along it to avoid jagged edges.
+   *
+   * @param {number} x1 - The x-coordinate of the start point.
+   * @param {number} y1 - The y-coordinate of the start point.
+   * @param {number} x2 - The x-coordinate of the end point.
+   * @param {number} y2 - The y-coordinate of the end point.
+   * @param {number} color_32bpp - The color of the line in 32-bit format.
+   */
+  drawNormalizedLine(x1, y1, x2, y2, color_32bpp) {
+    const DX = x2 - x1;
+    const DY = y2 - y1;
+
+    // Calculate the line length and inverse to normalize slope
+    const lineLength = Math.sqrt(DX * DX + DY * DY);
+    const recLineLength = 1.0 / (lineLength || 1); // Avoid division by zero
+
+    const slopeX = DX * recLineLength;
+    const slopeY = DY * recLineLength;
+
+    let pointX = x1;
+    let pointY = y1;
+
+    // Step along the line length to draw each pixel
+    for (let lineStep = 0; lineStep <= lineLength; ++lineStep) {
+      this.graphics.putPixel(pointX, pointY, color_32bpp);
+      pointX += slopeX;
+      pointY += slopeY;
+    }
+  }
+
+  /**
+   * Draws a line from (x1, y1) to (x2, y2) using a basic line drawing algorithm.
+   * This method calculates the steps required to draw the line smoothly and iterates over them.
+   *
+   * @param {number} x1 - The x-coordinate of the start point.
+   * @param {number} y1 - The y-coordinate of the start point.
+   * @param {number} x2 - The x-coordinate of the end point.
+   * @param {number} y2 - The y-coordinate of the end point.
+   * @param {number} color_32bpp - The color of the line in 32-bit format.
+   */
+  drawLine(x1, y1, x2, y2, color_32bpp) {
+    let DX_AB = x2 - x1;
+    let DY_AB = y2 - y1;
+
+    let steps =
+      Math.abs(Math.abs(DX_AB) > Math.abs(DY_AB) ? DX_AB : DY_AB) || 1;
+
+    let stepX = DX_AB / steps;
+    let stepY = DY_AB / steps;
+
+    let X = x1 + 0.5;
+    let Y = y1 + 0.5;
+    for (let lineIterator = 0; lineIterator < steps; ++lineIterator) {
+      this.graphics.putPixel(X, Y, color_32bpp);
+      X += stepX;
+      Y += stepY;
     }
   }
 
@@ -106,64 +169,94 @@ export class Shapes {
     }
   }
 
-  /**
-   * Draws a line from (x1, y1) to (x2, y2) using normalized coordinates.
-   * This line drawing algorithm computes the slope and steps along it to avoid jagged edges.
-   *
-   * @param {number} x1 - The x-coordinate of the start point.
-   * @param {number} y1 - The y-coordinate of the start point.
-   * @param {number} x2 - The x-coordinate of the end point.
-   * @param {number} y2 - The y-coordinate of the end point.
-   * @param {number} color_32bpp - The color of the line in 32-bit format.
-   */
-  drawNormalizedLine(x1, y1, x2, y2, color_32bpp) {
-    const DX = x2 - x1;
-    const DY = y2 - y1;
+  drawScanLineDepthTriangle(x1, y1, z1, x2, y2, z2, x3, y3, z3, color_32bpp) {
+    // Convert vertices to integers to avoid sub-pixel inaccuracies
+    x1 = parseInt(x1);
+    y1 = parseInt(y1);
+    x2 = parseInt(x2);
+    y2 = parseInt(y2);
+    x3 = parseInt(x3);
+    y3 = parseInt(y3);
 
-    // Calculate the line length and inverse to normalize slope
-    const lineLength = Math.sqrt(DX * DX + DY * DY);
-    const recLineLength = 1.0 / (lineLength || 1); // Avoid division by zero
+    // Sort vertices by y-coordinate (ascending)
+    if (y1 > y2) [x1, y1, z1, x2, y2, z2] = [x2, y2, z2, x1, y1, z1];
+    if (y1 > y3) [x1, y1, z1, x3, y3, z3] = [x3, y3, z3, x1, y1, z1];
+    if (y2 > y3) [x2, y2, z2, x3, y3, z3] = [x3, y3, z3, x2, y2, z2];
 
-    const slopeX = DX * recLineLength;
-    const slopeY = DY * recLineLength;
+    const DYAB = y2 - y1;
+    const DXAB = x2 - x1;
+    const DZAB = z2 - z1;
 
-    let pointX = x1;
-    let pointY = y1;
+    const DYAC = y3 - y1;
+    const DXAC = x3 - x1;
+    const DZAC = z3 - z1;
 
-    // Step along the line length to draw each pixel
-    for (let lineStep = 0; lineStep <= lineLength; ++lineStep) {
-      this.graphics.putPixel(pointX, pointY, color_32bpp);
-      pointX += slopeX;
-      pointY += slopeY;
+    const DYBC = y3 - y2;
+    const DXBC = x3 - x2;
+    const DZBC = z3 - z2;
+
+    let slopeABX = DXAB / (DYAB || 1); // Avoid division by zero
+    let slopeABZ = DZAB / (DYAB || 1);
+    
+    let slopeACX = DXAC / (DYAC || 1);
+    let slopeACZ = DZAC / (DYAC || 1);
+    
+    let slopeBCX = DXBC / (DYBC || 1);
+    let slopeBCZ = DZBC / (DYBC || 1);
+    
+    let slopeABCX = slopeACX;
+    let slopeABCZ = slopeACZ;
+
+    let xLeft = x1;
+    let xRight = x1;
+    let zLeft = z1;
+    let zRight = z1;
+
+    if (!DYAB) {
+      xLeft = x2;
+      xRight = x1;
+      zLeft = z2;
+      zRight = z1;
     }
-  }
 
-  /**
-   * Draws a line from (x1, y1) to (x2, y2) using a basic line drawing algorithm.
-   * This method calculates the steps required to draw the line smoothly and iterates over them.
-   *
-   * @param {number} x1 - The x-coordinate of the start point.
-   * @param {number} y1 - The y-coordinate of the start point.
-   * @param {number} x2 - The x-coordinate of the end point.
-   * @param {number} y2 - The y-coordinate of the end point.
-   * @param {number} color_32bpp - The color of the line in 32-bit format.
-   */
-  drawLine(x1, y1, x2, y2, color_32bpp) {
-    let DX_AB = x2 - x1;
-    let DY_AB = y2 - y1;
+    // Ensure xLeft is the smaller value and xRight is the larger
+    if (slopeABX > slopeACX) {
+      [slopeABX, slopeACX] = [slopeACX, slopeABX];
+      [slopeBCX, slopeABCX] = [slopeABCX, slopeBCX];
 
-    let steps =
-      Math.abs(Math.abs(DX_AB) > Math.abs(DY_AB) ? DX_AB : DY_AB) || 1;
+      [slopeABZ, slopeACZ] = [slopeACZ, slopeABZ];
+      [slopeBCZ, slopeABCZ] = [slopeABCZ, slopeBCZ];
 
-    let stepX = DX_AB / steps;
-    let stepY = DY_AB / steps;
+      [xLeft, xRight] = [xRight, xLeft];
+      [zLeft, zRight] = [zRight, zLeft];
+    }
 
-    let X = x1 + 0.5;
-    let Y = y1 + 0.5;
-    for (let lineIterator = 0; lineIterator < steps; ++lineIterator) {
-      this.graphics.putPixel(X, Y, color_32bpp);
-      X += stepX;
-      Y += stepY;
+    // Draw the upper triangle half
+    for (let y = y1; y < y2; ++y) {
+      let lerpZ = (zRight - zLeft) / (xRight - xLeft);
+      let pixelDepth = zLeft;
+      for (let x = xLeft; x < xRight; ++x) {
+        this.graphics.putDepthPixel(x, y, pixelDepth, color_32bpp);
+        pixelDepth += lerpZ;
+      }
+      xLeft += slopeABX;
+      xRight += slopeACX;
+      zLeft += slopeABZ;
+      zRight += slopeACZ;
+    }
+
+    // Draw the lower triangle half
+    for (let y = y2; y < y3; ++y) {
+      let lerpZ = (zRight - zLeft) / (xRight - xLeft);
+      let pixelDepth = zLeft;
+      for (let x = xLeft; x < xRight; ++x) {
+        this.graphics.putDepthPixel(x, y, pixelDepth, color_32bpp);
+        pixelDepth += lerpZ;
+      }
+      xLeft += slopeBCX;
+      xRight += slopeABCX;
+      zLeft += slopeBCZ;
+      zRight += slopeABCZ;
     }
   }
 
