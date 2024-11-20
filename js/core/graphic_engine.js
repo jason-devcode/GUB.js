@@ -73,8 +73,17 @@ export class GraphicEngine {
     this.canvas = canvas;
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
+    this.totalPixels = viewportWidth * viewportHeight;
     this.framebuffer = framebuffer;
     this.context = context;
+  }
+
+  initializeDepthBuffer() {
+    this.depthBuffer = new Array(this.totalPixels);
+  }
+
+  enableDepthBufferRendering() {
+    this.initializeDepthBuffer();
   }
 
   /**
@@ -123,6 +132,43 @@ export class GraphicEngine {
   }
 
   /**
+   * Sets the color of a specific pixel in the framebuffer.
+   * @param {number} x - The x-coordinate of the pixel.
+   * @param {number} y - The y-coordinate of the pixel.
+   * @param {number} depth - The depth of the pixel.
+   * @param {number} color_32bpp - The 32-bit color value in ARGB format.
+   */
+  putDepthPixel(x, y, depth, color_32bpp) {
+    // protection if pixel is outside of viewport bounds
+    if (x < 0 || y < 0 || x > this.viewportWidth || y > this.viewportHeight)
+      return;
+
+    const pixelIndex = this.calculatePixelIndex(parseInt(x), parseInt(y));
+
+    const pixelDepth = this.depthBuffer[pixelIndex];
+
+    depth /= 4.0;
+
+    if (depth <= pixelDepth) {
+      const unpackedColor = this.unpackColorChannels(color_32bpp);
+
+      this.framebuffer.data[pixelIndex + 0] = parseInt(unpackedColor[0] * (1.0 - depth));
+      this.framebuffer.data[pixelIndex + 1] = parseInt(unpackedColor[1] * (1.0 - depth));
+      this.framebuffer.data[pixelIndex + 2] = parseInt(unpackedColor[2] * (1.0 - depth));
+      this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
+// 
+      // const c = parseInt(255 *  (1.0 - depth));
+      // this.framebuffer.data[pixelIndex + 0] = c;
+      // this.framebuffer.data[pixelIndex + 1] = c;
+      // this.framebuffer.data[pixelIndex + 2] = c;
+      // this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
+
+      
+      this.depthBuffer[pixelIndex] = depth;
+    }
+  }
+
+  /**
    *
    * @param {number} x
    * @param {number} y
@@ -154,11 +200,18 @@ export class GraphicEngine {
     const unpackedColor = this.unpackColorChannels(color_32bpp);
     const { data } = this.framebuffer;
 
+    // data.fill( 0xFFFF0000 | color_32bpp );
+
     for (let i = 0; i < data.length; i += 4) {
       data[i] = unpackedColor[0]; // R
       data[i + 1] = unpackedColor[1]; // G
       data[i + 2] = unpackedColor[2]; // B
       data[i + 3] = unpackedColor[3]; // A
+      //
+      this.depthBuffer[i + 0] = 999999999;
+      this.depthBuffer[i + 1] = 999999999;
+      this.depthBuffer[i + 2] = 999999999;
+      this.depthBuffer[i + 3] = 999999999;
     }
   }
 
