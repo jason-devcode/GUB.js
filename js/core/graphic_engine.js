@@ -152,11 +152,12 @@ export class GraphicEngine {
     if (depth <= pixelDepth) {
       const unpackedColor = this.unpackColorChannels(color_32bpp);
 
-      this.framebuffer.data[pixelIndex + 0] = parseInt(unpackedColor[0] * (1.0 - depth));
-      this.framebuffer.data[pixelIndex + 1] = parseInt(unpackedColor[1] * (1.0 - depth));
-      this.framebuffer.data[pixelIndex + 2] = parseInt(unpackedColor[2] * (1.0 - depth));
+      this.framebuffer.data[pixelIndex + 0] = unpackedColor[0];
+      this.framebuffer.data[pixelIndex + 1] = unpackedColor[1];
+      this.framebuffer.data[pixelIndex + 2] = unpackedColor[2];
       this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
-// 
+      
+      // TODO: Use this to draw Z-Buffer 
       // const c = parseInt(255 *  (1.0 - depth));
       // this.framebuffer.data[pixelIndex + 0] = c;
       // this.framebuffer.data[pixelIndex + 1] = c;
