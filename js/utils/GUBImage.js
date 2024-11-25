@@ -33,6 +33,39 @@ export class GUBImage {
   }
 
   /**
+   * Gets the pixel color at the specified (x, y) coordinate.
+   *
+   * @param {number} x - The x-coordinate of the pixel.
+   * @param {number} y - The y-coordinate of the pixel.
+   * @returns {number} The color of the pixel as a 32-bit unsigned integer in ARGB format.
+   */
+  getPixel(x, y) {
+    const px = parseInt(x);
+    const py = parseInt(y);
+    if (px < 0 || px >= this.width || py < 0 || py >= this.height) return;
+    const index = py * this.width + px;
+    return this.pixelData[index];
+  }
+
+  /**
+   * Gets the pixel color at the specified (x, y) coordinate.
+   *
+   * @param {number} x - The x-coordinate of the pixel.
+   * @param {number} y - The y-coordinate of the pixel.
+   * @returns {number} The color of the pixel as a 32-bit unsigned integer in ARGB format.
+   */
+  getTexel(u, v) {
+    // clamp texel coordinates
+    u = u > 0 ? (u < 1 ? u : 1) : 0;
+    v = v > 0 ? (v < 1 ? v : 1) : 0;
+
+    const texelX = parseInt(u * (this.width - 1));
+    const texelY = parseInt(v * (this.height - 1));
+    const index = texelX * this.width + texelY;
+    return this.pixelData[index];
+  }
+
+  /**
    * Sets the pixel color at the specified (x, y) coordinate.
    *
    * @param {number} x - The x-coordinate of the pixel.
