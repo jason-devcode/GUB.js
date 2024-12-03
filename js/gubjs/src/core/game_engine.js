@@ -208,6 +208,8 @@ export class GameEngine {
    * @returns {function} A game loop callback function that will be used in the game loop cycle.
    */
   createGameLoop(gameLoop) {
+    // temporal fix
+    this.graphic_engine.enableDepthBufferRendering();
     return () => {
       // Update FPS counter
       this.updateFPSCounter();
