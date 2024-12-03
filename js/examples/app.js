@@ -1,8 +1,8 @@
-import { GameEngine } from "./gubjs/src/core/game_engine.js";
-import { GraphicEngine } from "./gubjs/src/core/graphic_engine.js";
+import { GameEngine } from "../gubjs/src/core/game_engine.js";
+import { GraphicEngine } from "../gubjs/src/core/graphic_engine.js";
 
-import { PPMImage } from "./gubjs/src/utils/PPMImage.js";
-import { Shapes } from "./gubjs/src/utils/Shapes.js";
+import { PPMImage } from "../gubjs/src/utils/PPMImage.js";
+import { Shapes } from "../gubjs/src/utils/Shapes.js";
 
 import {
   GRAY_500,
@@ -12,7 +12,7 @@ import {
   SLATE_950,
   WHITE,
   YELLOW_500,
-} from "./gubjs/src/utils/colors.js";
+} from "../gubjs/src/utils/colors.js";
 
 /**
  *
@@ -163,37 +163,37 @@ export const gameAppContext = async ({ graphics, shapes }) => {
 
       const color = triangle[6];
 
-      shapes.drawScanLineDepthTriangle(
-        vertexA[0],
-        vertexA[1],
-        vertexA[2],
-        vertexB[0],
-        vertexB[1],
-        vertexB[2],
-        vertexC[0],
-        vertexC[1],
-        vertexC[2],
-        color,
-      );
-
-      // shapes.drawScanLineDepthTextureTriangle(
+      // shapes.drawScanLineDepthTriangle(
       //   vertexA[0],
       //   vertexA[1],
       //   vertexA[2],
-      //   texelA[0],
-      //   texelA[1],
       //   vertexB[0],
       //   vertexB[1],
       //   vertexB[2],
-      //   texelB[0],
-      //   texelB[1],
       //   vertexC[0],
       //   vertexC[1],
       //   vertexC[2],
-      //   texelC[0],
-      //   texelC[1],
-      //   image
+      //   color,
       // );
+
+      shapes.drawScanLineDepthTextureTriangle(
+        vertexA[0],
+        vertexA[1],
+        vertexA[2],
+        texelA[0],
+        texelA[1],
+        vertexB[0],
+        vertexB[1],
+        vertexB[2],
+        texelB[0],
+        texelB[1],
+        vertexC[0],
+        vertexC[1],
+        vertexC[2],
+        texelC[0],
+        texelC[1],
+        image
+      );
 
       // shapes.drawDepthLine(
       //   vertexA[0],
@@ -235,7 +235,7 @@ export const gameAppContext = async ({ graphics, shapes }) => {
    * @param {number} deltaTime - Time in seconds since the last frame.
    */
   const gameLoop = (deltaTime) => {
-    drawCube([0, 0, 2], [0, currentAngle * 0.8]);
+    drawCube([0, 0, 3], [currentAngle * 0.2, currentAngle * 0.8]);
     // drawCube([ 0, 0, 4], [currentAngle * 0.2, currentAngle * 0.8]);
     // drawCube([ 4, 0, 4], [currentAngle * 0.5, currentAngle * 0.8]);
     // drawCube([-4,-4, 4], [currentAngle * 0.5, currentAngle * 0.8]);
@@ -277,7 +277,7 @@ export const gameAppContext = async ({ graphics, shapes }) => {
  * Main function that initializes and runs the game.
  */
 export const main = () => {
-  const game = new GameEngine(512, 256);
+  const game = new GameEngine();
   // const game = new GameEngine();
 
   // Call setGameAppContext, handling the promise if the context is async

@@ -1,8 +1,8 @@
-import { GameEngine } from "./core/game_engine.js";
-import { GraphicEngine } from "./core/graphic_engine.js";
+import { GameEngine } from "../gubjs/src/core/game_engine.js";
+import { GraphicEngine } from "../gubjs/src/core/graphic_engine.js";
 
-import { PPMImage } from "./utils/PPMImage.js";
-import { Shapes } from "./utils/Shapes.js";
+import { PPMImage } from "../gubjs/src/utils/PPMImage.js";
+import { Shapes } from "../gubjs/src/utils/Shapes.js";
 
 import {
   GRAY_500,

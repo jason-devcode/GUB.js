@@ -1,7 +1,7 @@
-import { GameEngine } from "./core/game_engine.js";
-import { GraphicEngine } from "./core/graphic_engine.js";
-import { SLATE_950 } from "./utils/colors.js";
-import { Shapes } from "./utils/Shapes.js";
+import { GameEngine } from "../gubjs/src/core/game_engine.js";
+import { GraphicEngine } from "../gubjs/src/core/graphic_engine.js";
+import { SLATE_950 } from "../gubjs/src/utils/colors.js";
+import { Shapes } from "../gubjs/src/utils/Shapes.js";
 
 const PI = 3.141592;
 const TAU = PI * 2;
