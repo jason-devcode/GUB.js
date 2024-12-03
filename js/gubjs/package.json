@@ -1,0 +1,27 @@
+{
+  "name": "gubjs-v1b",
+  "type": "module",
+  "version": "0.0.2",
+  "description": "Mini-Game Engine for write games in javascript vanilla",
+  "main": "index.js",
+  "exports": {
+    "./core": "./src/core/index.js",
+    "./utils": "./src/utils/index.js",
+    "./react": "./src/utils/react/index.js",
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game-development",
+    "game-engine",
+    "game development",
+    "game engine",
+    "games",
+    "graphic-engine",
+    "graphic engine"
+  ],
+  "author": "jason-devcode",
+  "license": "MIT"
+}
