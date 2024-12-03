@@ -3,6 +3,10 @@
   "type": "module",
   "version": "0.0.2",
   "description": "Mini-Game Engine for write games in javascript vanilla",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jason-devcode/GUB.js/tree/main/js/gubjs"
+  },
   "main": "index.js",
   "exports": {
     "./core": "./src/core/index.js",
