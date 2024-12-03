@@ -76,6 +76,23 @@ export class GraphicEngine {
     this.totalPixels = viewportWidth * viewportHeight;
     this.framebuffer = framebuffer;
     this.context = context;
+
+    // default method to clear framebuffer
+    /**
+     * Clears the framebuffer to a specified color.
+     * @param {number} color_32bpp - The 32-bit color value in ARGB format.
+     */
+    this.clearFramebuffer = (color_32bpp = 0x00000000) => {
+      const unpackedColor = this.unpackColorChannels(color_32bpp);
+      const { data } = this.framebuffer;
+
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = unpackedColor[0]; // R
+        data[i + 1] = unpackedColor[1]; // G
+        data[i + 2] = unpackedColor[2]; // B
+        data[i + 3] = unpackedColor[3]; // A
+      }
+    };
   }
 
   initializeDepthBuffer() {
@@ -84,6 +101,29 @@ export class GraphicEngine {
 
   enableDepthBufferRendering() {
     this.initializeDepthBuffer();
+    // overwrite clear framebuffer method to allow clear depth buffer
+    /**
+     * Clears the framebuffer to a specified color and set all depth buffer cells to 999999999.
+     * @param {number} color_32bpp - The 32-bit color value in ARGB format.
+     */
+    this.clearFramebuffer = (color_32bpp = 0x00000000) => {
+      const unpackedColor = this.unpackColorChannels(color_32bpp);
+      const { data } = this.framebuffer;
+
+      // data.fill( 0xFFFF0000 | color_32bpp );
+
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = unpackedColor[0]; // R
+        data[i + 1] = unpackedColor[1]; // G
+        data[i + 2] = unpackedColor[2]; // B
+        data[i + 3] = unpackedColor[3]; // A
+        //
+        this.depthBuffer[i + 0] = 999999999;
+        this.depthBuffer[i + 1] = 999999999;
+        this.depthBuffer[i + 2] = 999999999;
+        this.depthBuffer[i + 3] = 999999999;
+      }
+    };
   }
 
   /**
@@ -147,7 +187,7 @@ export class GraphicEngine {
 
     const pixelDepth = this.depthBuffer[pixelIndex];
 
-    depth /= 4.0;
+    depth /= 2.0;
 
     if (depth <= pixelDepth) {
       const unpackedColor = this.unpackColorChannels(color_32bpp);
@@ -156,15 +196,21 @@ export class GraphicEngine {
       this.framebuffer.data[pixelIndex + 1] = unpackedColor[1];
       this.framebuffer.data[pixelIndex + 2] = unpackedColor[2];
       this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
-      
-      // TODO: Use this to draw Z-Buffer 
+
+      // TODO: Use this to draw Z-Buffer
       // const c = parseInt(255 *  (1.0 - depth));
       // this.framebuffer.data[pixelIndex + 0] = c;
       // this.framebuffer.data[pixelIndex + 1] = c;
       // this.framebuffer.data[pixelIndex + 2] = c;
       // this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
 
-      
+      // TODO: Use this to draw pixels with depth gradient
+      // const alpha = 1.0 - depth;
+      // this.framebuffer.data[pixelIndex + 0] = Math.ceil(unpackedColor[0] * alpha);
+      // this.framebuffer.data[pixelIndex + 1] = Math.ceil(unpackedColor[1] * alpha);
+      // this.framebuffer.data[pixelIndex + 2] = Math.ceil(unpackedColor[2] * alpha);
+      // this.framebuffer.data[pixelIndex + 3] = 0xff; // alpha ever 255
+
       this.depthBuffer[pixelIndex] = depth;
     }
   }
@@ -190,29 +236,6 @@ export class GraphicEngine {
         const pixelColor = image.getPixel(pixelX, pixelY);
         this.putPixel(x + X, y + Y, pixelColor);
       }
-    }
-  }
-
-  /**
-   * Clears the framebuffer to a specified color.
-   * @param {number} color_32bpp - The 32-bit color value in ARGB format.
-   */
-  clearFramebuffer(color_32bpp = 0x00000000) {
-    const unpackedColor = this.unpackColorChannels(color_32bpp);
-    const { data } = this.framebuffer;
-
-    // data.fill( 0xFFFF0000 | color_32bpp );
-
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = unpackedColor[0]; // R
-      data[i + 1] = unpackedColor[1]; // G
-      data[i + 2] = unpackedColor[2]; // B
-      data[i + 3] = unpackedColor[3]; // A
-      //
-      this.depthBuffer[i + 0] = 999999999;
-      this.depthBuffer[i + 1] = 999999999;
-      this.depthBuffer[i + 2] = 999999999;
-      this.depthBuffer[i + 3] = 999999999;
     }
   }
 
