@@ -2,21 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { GameEngine } from "../../core/game_engine.js";
 
 /**
- * A custom React hook that initializes and manages a game engine instance.
- * This hook is designed to prevent the re-instantiation of the game engine
- * between React component re-renders, ensuring the game engine instance persists
- * across renders.
+ * A custom React hook for initializing and managing a persistent game engine instance.
  *
- * It initializes the `GameEngine` once and starts the game loop with the provided
- * `gameAppContext`, which contains the game logic and returns the game loop to be executed.
+ * This hook ensures the `GameEngine` is instantiated only once and remains consistent 
+ * across React component re-renders. It integrates seamlessly with React's lifecycle, 
+ * preventing unnecessary re-instantiations that could disrupt game functionality.
+ *
+ * The `useGameEngine` hook sets up the game engine and starts the game loop defined 
+ * in the `gameAppContext` callback, allowing developers to focus on implementing game logic.
  *
  * @function
  * @param {Object} config - Configuration object for initializing the game engine.
- * @param {number} config.width - The width of the game engine canvas.
- * @param {number} config.height - The height of the game engine canvas.
- * @param {string} config.viewportDivId - The ID of the HTML container where the game engine will render.
- * @param {Function} config.gameAppContext - A callback function that contains all the game logic
- * and returns the game loop to be executed by the engine.
+ * @param {number} [config.width] - Optional. The width of the game engine canvas. 
+ * If not specified, it defaults to the width of the div assigned as the viewport.
+ * @param {number} [config.height] - Optional. The height of the game engine canvas. 
+ * If not specified, it defaults to the height of the div assigned as the viewport.
+ * @param {string} [config.viewportDivId="game-viewport"] - Optional. The ID of the HTML container 
+ * where the game engine will render. Defaults to a div with the ID `game-viewport` if not specified.
+ * @param {Function} config.gameAppContext - Required. A callback function containing all the game logic.
+ * This function is responsible for returning the game loop, which the engine executes 
+ * continuously to update the game state and render graphics.
+ * 
  * @returns {void}
  */
 export const useGameEngine = ({
