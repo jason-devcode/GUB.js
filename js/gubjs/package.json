@@ -1,7 +1,7 @@
 {
   "name": "gubjs-v1b",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Mini-Game Engine for write games in javascript vanilla",
   "repository": {
     "type": "git",
