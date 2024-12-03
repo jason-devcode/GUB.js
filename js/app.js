@@ -1,8 +1,8 @@
-import { GameEngine } from "./core/game_engine.js";
-import { GraphicEngine } from "./core/graphic_engine.js";
+import { GameEngine } from "./gubjs/src/core/game_engine.js";
+import { GraphicEngine } from "./gubjs/src/core/graphic_engine.js";
 
-import { PPMImage } from "./utils/PPMImage.js";
-import { Shapes } from "./utils/Shapes.js";
+import { PPMImage } from "./gubjs/src/utils/PPMImage.js";
+import { Shapes } from "./gubjs/src/utils/Shapes.js";
 
 import {
   GRAY_500,
@@ -12,7 +12,7 @@ import {
   SLATE_950,
   WHITE,
   YELLOW_500,
-} from "./utils/colors.js";
+} from "./gubjs/src/utils/colors.js";
 
 /**
  *
@@ -98,12 +98,12 @@ export const gameAppContext = async ({ graphics, shapes }) => {
       [4, 7, 6, 0, 3, 2, YELLOW_500],
 
       // top face
-      // [4, 5, 1, 0, 1, 3, WHITE],
-      // [4, 1, 0, 0, 3, 2, WHITE],
+      [4, 5, 1, 0, 1, 3, WHITE],
+      [4, 1, 0, 0, 3, 2, WHITE],
 
       // bottom face
-      // [7, 6, 2, 0, 1, 3, GREEN_500],
-      // [7, 2, 3, 0, 3, 2, GREEN_500],
+      [3, 2, 6, 0, 1, 3, GREEN_500],
+      [3, 6, 7, 0, 3, 2, GREEN_500],
 
       // left face
       [4, 0, 3, 0, 1, 3, GRAY_500],
@@ -127,10 +127,10 @@ export const gameAppContext = async ({ graphics, shapes }) => {
     ) {
       let vertex = vertexRotateY(
         cubeData.vertices[vertexIterator],
-        rotation[1]
+        rotation[0]
       );
 
-      vertex = vertexRotateX(vertex, rotation[0]);
+      vertex = vertexRotateX(vertex, rotation[1]);
       vertex[0] += position[0];
       vertex[1] += position[1];
       vertex[2] += position[2];
