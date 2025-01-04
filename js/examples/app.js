@@ -13,6 +13,7 @@ import {
   WHITE,
   YELLOW_500,
 } from "../gubjs/src/utils/colors.js";
+import { CKeyEventManager } from "../gubjs/src/core/event_managers/CKeyEventManager.js";
 
 /**
  *
@@ -153,9 +154,11 @@ export const gameAppContext = async ({ graphics, shapes }) => {
       const vertexB = tempVertices[triangle[1]];
       const vertexC = tempVertices[triangle[2]];
 
-      const area = (vertexB[0] - vertexA[0]) * (vertexC[1] - vertexA[1]) - (vertexC[0] - vertexA[0]) * (vertexB[1] - vertexA[1]);
+      const area =
+        (vertexB[0] - vertexA[0]) * (vertexC[1] - vertexA[1]) -
+        (vertexC[0] - vertexA[0]) * (vertexB[1] - vertexA[1]);
 
-      if( area > 0 ) continue;
+      if (area > 0) continue;
 
       const texelA = cubeData.texels[triangle[3]];
       const texelB = cubeData.texels[triangle[4]];
@@ -229,43 +232,56 @@ export const gameAppContext = async ({ graphics, shapes }) => {
     }
   };
 
+  const key_event_manager = new CKeyEventManager();
+  const callbackToRemove = () => console.log("Key a 3 pressed");
+
+  key_event_manager.addActionListener("a", () =>
+    console.log("Key a 1 pressed")
+  );
+  key_event_manager.addActionListener("a", () =>
+    console.log("Key a 2 pressed")
+  );
+  key_event_manager.addActionListener("a", callbackToRemove);
+  key_event_manager.addActionListener("a", () =>
+    console.log("Key a 4 pressed")
+  );
+  key_event_manager.addActionListener("a", () =>
+    console.log("Key a 5 pressed")
+  );
+
+  console.log("Before remove: ", key_event_manager);
+  // key_event_manager.removeActionListener("a",  callbackToRemove);
+  // console.log("After remove: ", key_event_manager);
+
+  /** @type {Record<string,boolean>} */
+  const key_states = {};
+
+  document.addEventListener("keydown", (event) => {
+    console.log(event);
+    const key = event.key;
+    key_states[key] = true;
+  });
+
+  document.addEventListener("keyup", (event) => {
+    console.log(event);
+    const key = event.key;
+    delete key_states[key];
+  });
+
+  const checkKeysPressed = () => {
+    for (let key_state in key_states) {
+      console.log(`Key ${key_state} pressed`);
+    }
+  };
+
   /**
    * Main game loop that updates object positions based on elapsed time.
    *
    * @param {number} deltaTime - Time in seconds since the last frame.
    */
   const gameLoop = (deltaTime) => {
-    drawCube([0, 0, 3], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 0, 0, 4], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 0, 4], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4,-4, 4], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0,-4, 4], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4,-4, 4], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4, 4, 4], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0, 4, 4], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 4, 4], [currentAngle * 0.5, currentAngle * 0.8]);
-
-    // drawCube([-4, 0, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0, 0, 8], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 0, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4,-4, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0,-4, 8], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4,-4, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4, 4, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0, 4, 8], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 4, 8], [currentAngle * 0.5, currentAngle * 0.8]);
-    
-    // drawCube([-4, 0, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0, 0, 12], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 0, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4,-4, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0,-4, 12], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4,-4, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([-4, 4, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    // drawCube([ 0, 4, 12], [currentAngle * 0.2, currentAngle * 0.8]);
-    // drawCube([ 4, 4, 12], [currentAngle * 0.5, currentAngle * 0.8]);
-    
-
+    drawCube([0, 0, 2.5], [currentAngle * 0.2, currentAngle * 0.8]);
+    checkKeysPressed();
 
     currentAngle += RADIAN * 100 * deltaTime;
   };
