@@ -68,9 +68,23 @@ CBaseEventManager.prototype.removeActionListener = function (
  * Removes an action listener from the event system.
  *
  * @param {string} eventName
+ * @param {Object}
  * @param {Function} actionListenerCallback - The callback function to be removed from the associated event's listeners.
  *                                            The callback should match the reference of an existing listener.
  */
-CBaseEventManager.prototype.triggerEvent = function (eventName) {};
+CBaseEventManager.prototype.triggerEvent = function (eventName) {
+  /** @type {CActionListenerLinkedList} I */
+  const linkedList = this.getOrCreateActionListenerList(eventName, false);
+  if (!linkedList) return;
+
+  // start from root node
+  let nodeIterator = linkedList.rootNode;
+
+  while (nodeIterator) {
+    const actionCallback = nodeIterator.getActionCallback();
+    if (actionCallback) actionCallback();
+    nodeIterator = nodeIterator.getNextNode();
+  }
+};
 
 export default CBaseEventManager;
