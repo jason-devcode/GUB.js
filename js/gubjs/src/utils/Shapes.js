@@ -289,7 +289,7 @@ export class Shapes {
     for (let y = y1; y < y2; ++y) {
       let lerpZ = (zRight - zLeft) / (xRight - xLeft);
       let pixelDepth = zLeft;
-      for (let x = xLeft; x <= xRight; ++x) {
+      for (let x = xLeft; x < xRight; ++x) {
         this.graphics.putDepthPixel(x, y, pixelDepth, color_32bpp);
         pixelDepth += lerpZ;
       }
@@ -303,7 +303,7 @@ export class Shapes {
     for (let y = y2; y < y3; ++y) {
       let lerpZ = (zRight - zLeft) / (xRight - xLeft);
       let pixelDepth = zLeft;
-      for (let x = xLeft; x <= xRight; ++x) {
+      for (let x = xLeft; x < xRight; ++x) {
         this.graphics.putDepthPixel(x, y, pixelDepth, color_32bpp);
         pixelDepth += lerpZ;
       }
@@ -461,7 +461,7 @@ export class Shapes {
       let U = uLeft;
       let V = vLeft;
 
-      for (let x = xLeft; x <= xRight; ++x) {
+      for (let x = xLeft; x < xRight; ++x) {
         const correctU = U / pixelDepth;
         const correctV = V / pixelDepth;
         const texelColor = texture.getTexel(correctU, correctV);
@@ -494,7 +494,7 @@ export class Shapes {
       let U = uLeft;
       let V = vLeft;
 
-      for (let x = xLeft; x <= xRight; ++x) {
+      for (let x = xLeft; x < xRight; ++x) {
         const correctU = U / pixelDepth;
         const correctV = V / pixelDepth;
         const texelColor = texture.getTexel(correctU, correctV);
