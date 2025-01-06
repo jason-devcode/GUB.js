@@ -257,7 +257,6 @@ export const gameAppContext = async ({ graphics, shapes }) => {
   const key_states = {};
 
   document.addEventListener("keydown", (event) => {
-    console.log(event);
     const key = event.key;
     key_states[key] = true;
   });
@@ -270,7 +269,8 @@ export const gameAppContext = async ({ graphics, shapes }) => {
 
   const checkKeysPressed = () => {
     for (let key_state in key_states) {
-      console.log(`Key ${key_state} pressed`);
+      // console.log(`Key ${key_state} pressed`);
+      key_event_manager.triggerEvent(key_state);
     }
   };
 
