@@ -1,6 +1,8 @@
 import { Shapes } from "../utils/Shapes.js";
 import { GraphicEngine } from "./graphic_engine.js";
 
+import { CKeyEventManager } from "./event_managers/CKeyEventManager.js";
+
 /**
  * GameEngine class that serves as the foundation for game development, providing
  * essential utilities and components such as the graphics engine, game loop,
@@ -28,8 +30,45 @@ export class GameEngine {
       customViewportWidth,
       customViewportHeight
     );
+    this.initializeKeyEventManager();
+    this.initializeKeyStates();
     this.initializeFpsCounter(viewportDivId);
     this.initializeGameEngineContext();
+  }
+
+  /**
+   * Initializes key press and key down states objects
+   */
+  initializeKeyStates() {
+    /**
+     * Each of this objects is used to store the state of a key using the DOM Key events
+     * to update the key states.
+     */
+    /** @type {Record<string,boolean>} */
+    this.key_press_states = {};
+
+    /** @type {Record<string,boolean>} */
+    this.key_down_states = {};
+
+    // add event listener to keydown events for update key statee
+    document.addEventListener("keydown", (event) => {
+      const key = event.key;
+      this.key_press_states[key] = true;
+    });
+
+    // add event listener to remove key released from key states
+    document.addEventListener("keyup", (event) => {
+      const key = event.key;
+      delete this.key_press_states[key];
+    });
+  }
+
+  /**
+   * Initializes the Key Event Manager to key press and key down event management.
+   */
+  initializeKeyEventManager() {
+    this.key_press_event_manager = new CKeyEventManager();
+    // this.key_down_event_manager = new CKeyEventManager();
   }
 
   /**
@@ -38,7 +77,6 @@ export class GameEngine {
    * @param {number} [customViewportWidth] - Custom width for the viewport in pixels (optional).
    * @param {number} [customViewportHeight] - Custom height for the viewport in pixels (optional).
    */
-
   initializeGraphicEngine(
     viewportDivId,
     customViewportWidth,
@@ -59,6 +97,7 @@ export class GameEngine {
     this.instance_context = {
       graphics: this.graphic_engine,
       shapes: new Shapes(this.graphic_engine),
+      key_press_event_manager: this.key_press_event_manager,
     };
 
     // Time of the last frame rendered
@@ -203,6 +242,17 @@ export class GameEngine {
   }
 
   /**
+   * Check keys pressed states and trigger actions if some key state is true
+   * @param {number} deltaTime
+   */
+  checkKeysPressed(deltaTime) {
+    for (let key_state in this.key_press_states) {
+      console.log(`Key ${key_state} pressed`);
+      this.key_press_event_manager.triggerEvent(key_state, deltaTime);
+    }
+  }
+
+  /**
    * Create the game loop callback function.
    * @param {function(number): void} gameLoop - The game loop function to be executed on each frame.
    * @returns {function} A game loop callback function that will be used in the game loop cycle.
@@ -213,6 +263,8 @@ export class GameEngine {
       this.updateFPSCounter();
       // Calculate deltaTime before all current frame processes
       const deltaTime = this.calculateDeltaTime();
+      // loop and check each key state to trigger event actions
+      this.checkKeysPressed(deltaTime);
       // Clear the framebuffer with a black color (0x00000000).
       this.graphic_engine.clearFramebuffer(this.graphic_engine.clearColor);
       // Execute the provided game loop function with the current deltaTime

@@ -60,9 +60,14 @@ export const vertexRotateZ = (vertex, angle) => {
  * @param {Object} params - Configuration object for the game context.
  * @param {GraphicEngine} params.graphics - Instance of the graphic engine to manage rendering.
  * @param {Shapes} params.shapes - Instance of the Shapes class for drawing shapes.
+ * @param {CKeyEventManager} params.key_press_event_manager - Instance of key event manager for key press event management.
  * @returns {function(number): void} Game loop function that takes `deltaTime` to update the game.
  */
-export const gameAppContext = async ({ graphics, shapes }) => {
+export const gameAppContext = async ({
+  graphics,
+  shapes,
+  key_press_event_manager,
+}) => {
   graphics.setClearFramebufferColor(SLATE_950);
   graphics.enableDepthBufferRendering();
 
@@ -232,47 +237,27 @@ export const gameAppContext = async ({ graphics, shapes }) => {
     }
   };
 
-  const key_event_manager = new CKeyEventManager();
-  const callbackToRemove = () => console.log("Key a 3 pressed");
+  let posX = 0.0;
+  let posY = 0.0;
+  let posZ = 2.5;
 
-  key_event_manager.addActionListener("a", () =>
-    console.log("Key a 1 pressed")
-  );
-  key_event_manager.addActionListener("a", () =>
-    console.log("Key a 2 pressed")
-  );
-  key_event_manager.addActionListener("a", callbackToRemove);
-  key_event_manager.addActionListener("a", () =>
-    console.log("Key a 4 pressed")
-  );
-  key_event_manager.addActionListener("a", () =>
-    console.log("Key a 5 pressed")
-  );
-
-  console.log("Before remove: ", key_event_manager);
-  // key_event_manager.removeActionListener("a",  callbackToRemove);
-  // console.log("After remove: ", key_event_manager);
-
-  /** @type {Record<string,boolean>} */
-  const key_states = {};
-
-  document.addEventListener("keydown", (event) => {
-    const key = event.key;
-    key_states[key] = true;
+  key_press_event_manager.addActionListener("ArrowLeft", (deltaTime) => {
+    posX -= deltaTime * 10;
   });
 
-  document.addEventListener("keyup", (event) => {
-    console.log(event);
-    const key = event.key;
-    delete key_states[key];
+  key_press_event_manager.addActionListener("ArrowRight", (deltaTime) => {
+    posX += deltaTime * 10;
   });
 
-  const checkKeysPressed = () => {
-    for (let key_state in key_states) {
-      // console.log(`Key ${key_state} pressed`);
-      key_event_manager.triggerEvent(key_state);
-    }
-  };
+  key_press_event_manager.addActionListener("ArrowUp", (deltaTime) => {
+    posZ += deltaTime * 2;
+  });
+
+  key_press_event_manager.addActionListener("ArrowDown", (deltaTime) => {
+    posZ -= deltaTime * 2;
+  });
+  
+  
 
   /**
    * Main game loop that updates object positions based on elapsed time.
@@ -280,9 +265,7 @@ export const gameAppContext = async ({ graphics, shapes }) => {
    * @param {number} deltaTime - Time in seconds since the last frame.
    */
   const gameLoop = (deltaTime) => {
-    drawCube([0, 0, 2.5], [currentAngle * 0.2, currentAngle * 0.8]);
-    checkKeysPressed();
-
+    drawCube([posX, 0, posZ], [currentAngle * 0.2, currentAngle * 0.8]);
     currentAngle += RADIAN * 100 * deltaTime;
   };
 
@@ -293,7 +276,7 @@ export const gameAppContext = async ({ graphics, shapes }) => {
  * Main function that initializes and runs the game.
  */
 export const main = () => {
-  const game = new GameEngine();
+  const game = new GameEngine(512,256);
   // const game = new GameEngine();
 
   // Call setGameAppContext, handling the promise if the context is async
